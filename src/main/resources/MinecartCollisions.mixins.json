@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.praenyth.mods.minecartcollisions.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "AbstractMinecartEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
