@@ -14,7 +14,7 @@ public class MinecartCollisions implements ModInitializer {
     }
 
     public static float velocityMultiplier(double velocity) {
-        return (float) (velocity * 2);
+        return (float) ((velocity - 0.4) / 2);
     }
 
     public static float velocitySubtractor(double velocity) {
