@@ -105,13 +105,13 @@ public class MinecartUtils {
 
         if (onFlatRail(state)) {
 
-            BlockPos front = entityBlockPos.add(newMovementDir);
-            BlockPos back = entityBlockPos.subtract(newMovementDir);
-            BlockPos left = entityBlockPos.add(newMovementDir.getZ(), 0, -newMovementDir.getX());
-            BlockPos right = entityBlockPos.add(-newMovementDir.getZ(), 0, newMovementDir.getX());
+            BlockState front = entityWorld.getBlockState(entityBlockPos.add(newMovementDir));
+            BlockState back = entityWorld.getBlockState(entityBlockPos.subtract(newMovementDir));
+            BlockState left = entityWorld.getBlockState(entityBlockPos.add(newMovementDir.getZ(), 0, -newMovementDir.getX()));
+            BlockState right = entityWorld.getBlockState(entityBlockPos.add(-newMovementDir.getZ(), 0, newMovementDir.getX()));
 
-            if (onPerpendicularRail(state, entityWorld.getBlockState(left))
-                    && onPerpendicularRail(state, entityWorld.getBlockState(right))
+            if (onPerpendicularRail(state, left)
+                    && onPerpendicularRail(state, right)
             ) {
                 return true;
             }
