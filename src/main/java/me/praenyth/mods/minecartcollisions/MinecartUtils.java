@@ -114,6 +114,18 @@ public class MinecartUtils {
                     && onPerpendicularRail(state, right)
             ) {
                 return true;
+            } else if ((onPerpendicularRail(state, left) &&
+                    (onParallelRail(state, front) || onParallelRail(state, back))) ||
+                    (onPerpendicularRail(state, right) &&
+                    (onParallelRail(state, front) || onParallelRail(state, back)))) {
+                return true;
+            } else if (
+                    (onParallelRail(state, left)
+                    && (onPerpendicularRail(state, front) || onPerpendicularRail(state, back)))
+                    || (onParallelRail(state, right)
+                    && (onPerpendicularRail(state, front) || onPerpendicularRail(state, back)))
+            ) {
+                return true;
             }
 
         }

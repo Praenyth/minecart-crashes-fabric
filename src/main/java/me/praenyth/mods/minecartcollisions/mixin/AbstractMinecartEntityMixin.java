@@ -6,8 +6,6 @@ import me.praenyth.mods.minecartcollisions.damagesource.MinecartDamageSource;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.crash.CrashException;
@@ -17,16 +15,17 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(AbstractMinecartEntity.class)
 public abstract class AbstractMinecartEntityMixin extends Entity {
 
-    private boolean useDefaultSpeed = false;
+    private static boolean useDefaultSpeed = false;
 
     @Shadow public abstract Direction getMovementDirection();
+
+    @Shadow protected abstract double getMaxSpeed();
 
     public AbstractMinecartEntityMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -45,34 +44,73 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
         BlockPos locInFront;
         for (int i = 0; i < 3; i++) {
+
             locInFront = cartPos.add(cartDir.multiply(i));
             Block frontRail = MinecartUtils.checkRailInFront(cartWorld, locInFront);
 
+            BlockState frontBlockState = cartWorld.getBlockState(locInFront);
+
             if (frontRail != null) {
 
-                if (frontRail.equals(Blocks.RAIL)) {
+                try {
+                    if (frontRail.equals(Blocks.RAIL)) {
 
-                    switch (cartWorld.getBlockState(locInFront).get(Properties.RAIL_SHAPE)) {
-                        case ASCENDING_SOUTH:
-                        case ASCENDING_NORTH:
-                        case ASCENDING_EAST:
-                        case ASCENDING_WEST:
-                        case NORTH_EAST:
-                        case NORTH_WEST:
-                        case SOUTH_EAST:
-                        case SOUTH_WEST:
-                            if (getVelocity().getY() > 0 && MinecartUtils.onSlopedRail(cartRail)) {
-                                useDefaultSpeed = false;
-                                return;
-                            } else {
-                                useDefaultSpeed = true;
-                                return;
-                            }
-                        default:
+                        switch (frontBlockState.get(Properties.RAIL_SHAPE)) {
+                            case ASCENDING_SOUTH:
+                            case ASCENDING_NORTH:
+                            case ASCENDING_EAST:
+                            case ASCENDING_WEST:
+                            case NORTH_EAST:
+                            case NORTH_WEST:
+                            case SOUTH_EAST:
+                            case SOUTH_WEST:
+                                if (getVelocity().getY() > 0 && MinecartUtils.onSlopedRail(cartRail)) {
 
+                                    useDefaultSpeed = false;
+                                    return;
+
+                                } else {
+
+                                    useDefaultSpeed = true;
+                                    return;
+
+                                }
+                            default:
+                                if ((cartVelo.length() > (this.isTouchingWater() ? 4.0 : 8.0) / 20.0) && MinecartUtils.inIntersection(this, cartVelo, frontBlockState)) {
+
+                                    useDefaultSpeed = true;
+                                    return;
+
+                                }
+                        }
+
+                    } else if (frontRail.equals(Blocks.POWERED_RAIL)) {
+                        switch (frontBlockState.get(Properties.STRAIGHT_RAIL_SHAPE)) {
+                            case ASCENDING_SOUTH:
+                            case ASCENDING_NORTH:
+                            case ASCENDING_EAST:
+                            case ASCENDING_WEST:
+                                if (getVelocity().getY() > 0 && MinecartUtils.onSlopedRail(cartRail)) {
+
+                                    useDefaultSpeed = false;
+                                    return;
+
+                                } else {
+
+                                    useDefaultSpeed = true;
+                                    return;
+
+                                }
+                            default:
+                                if ((cartVelo.length() > (this.isTouchingWater() ? 4.0 : 8.0) / 20.0) && MinecartUtils.inIntersection(this, cartVelo, frontBlockState)) {
+
+                                    useDefaultSpeed = true;
+                                    return;
+
+                                }
+                        }
                     }
-
-                } else if (frontRail.equals(Blocks.POWERED_RAIL)) {
+                } catch (IllegalArgumentException ignored) {
 
                 }
 
@@ -81,7 +119,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         }
 
         // damage mechanic
-        if (getVelocity().length() > 1) {
+        if (cartVelo.length() > 1) {
             for (Entity entity : this.getWorld().getOtherEntities(this, new Box(
                     getPos().add(1.5, 1.5, 1.5), getPos().add(-1.5, -1, -1.5)
             ))) {
