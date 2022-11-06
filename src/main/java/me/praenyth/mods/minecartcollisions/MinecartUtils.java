@@ -1,153 +1,83 @@
 package me.praenyth.mods.minecartcollisions;
 
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.enums.RailShape;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.state.property.Properties;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.tag.BlockTags;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MinecartUtils {
 
-    public static Block checkRailInFront(World world, BlockPos checkPos) {
+    // From Cammie's Minecart Tweaks
+    public static boolean shouldSlowDown(AbstractMinecartEntity minecart, World world) {
+        boolean slowEm = false;
 
-        BlockPos checkPosUnder = checkPos.down();
+        if(minecart != null) {
+            int velocity = MathHelper.ceil(minecart.getVelocity().horizontalLength());
+            Direction direction = Direction.getFacing(minecart.getVelocity().getX(), 0, minecart.getVelocity().getZ());
+            BlockPos minecartPos = minecart.getBlockPos();
+            Vec3i pain = new Vec3i(minecartPos.getX(), 0, minecartPos.getZ());
+            BlockPos.Mutable pos = new BlockPos.Mutable();
+            List<Vec3i> poses = new ArrayList<>();
 
-        if (world.getBlockState(checkPos).getBlock().equals(Blocks.RAIL)) {
+            poses.add(minecartPos);
 
-            return world.getBlockState(checkPos).getBlock();
+            for(int i = 0; i < poses.size(); i++) {
+                pos.set(poses.get(i));
+                int distance = pain.getManhattanDistance(new Vec3i(pos.getX(), 0, pos.getZ()));
 
-        } else if (world.getBlockState(checkPosUnder).getBlock().equals(Blocks.RAIL)) {
+                if(distance > velocity)
+                    break;
 
-            return world.getBlockState(checkPosUnder).getBlock();
+                if(world.getBlockState(pos.down()).isIn(BlockTags.RAILS))
+                    pos.move(0, -1, 0);
 
-        } else if (world.getBlockState(checkPos).getBlock().equals(Blocks.POWERED_RAIL)) {
+                BlockState state = world.getBlockState(pos);
 
-            return world.getBlockState(checkPos).getBlock();
+                if(state.isIn(BlockTags.RAILS) && state.getBlock() instanceof AbstractRailBlock rails) {
+                    RailShape shape = state.get(rails.getShapeProperty());
 
-        } else if (world.getBlockState(checkPosUnder).getBlock().equals(Blocks.POWERED_RAIL)) {
+                    if((shape != RailShape.NORTH_SOUTH && shape != RailShape.EAST_WEST)) {
+                        slowEm = true;
+                        break;
+                    }
 
-            return world.getBlockState(checkPosUnder).getBlock();
+                    Pair<Vec3i, Vec3i> pair = AbstractMinecartEntity.getAdjacentRailPositionsByShape(shape);
+                    Vec3i first = pair.getFirst().add(pos);
+                    Vec3i second = pair.getSecond().add(pos);
 
-        }
+                    if(distance < 2) {
+                        if(!poses.contains(first))
+                            poses.add(first);
+                        if(!poses.contains(second))
+                            poses.add(second);
 
-        return null;
+                        continue;
+                    }
 
-    }
-
-    public static boolean onSlopedRail(BlockState state)
-    {
-        switch (state.get(Properties.RAIL_SHAPE)) {
-            case ASCENDING_SOUTH:
-            case ASCENDING_NORTH:
-            case ASCENDING_WEST:
-            case ASCENDING_EAST:
-                return true;
-        }
-        return false;
-    }
-
-    public static boolean onFlatRail(BlockState state) {
-
-        if (state.getBlock().equals(Blocks.RAIL)) {
-
-            if (onSlopedRail(state)) {
-
-                return true;
-
+                    if((shape == RailShape.NORTH_SOUTH && direction == Direction.NORTH) || (shape == RailShape.EAST_WEST && direction == Direction.WEST)) {
+                        if(!poses.contains(first))
+                            poses.add(first);
+                    }
+                    else {
+                        if(!poses.contains(second))
+                            poses.add(second);
+                    }
+                }
             }
-
         }
 
-        return false;
-
-    }
-
-    public static boolean onParallelRail(BlockState myState, BlockState otherState) {
-
-        if (otherState.getBlock().equals(Blocks.RAIL)) {
-
-            if (myState.get(Properties.RAIL_SHAPE).equals(otherState.get(Properties.RAIL_SHAPE))) {
-                return true;
-            }
-
-        }
-
-        return false;
-
-    }
-
-    public static boolean onPerpendicularRail(BlockState myState, BlockState otherState) {
-
-        if (otherState.getBlock().equals(Blocks.RAIL)) {
-
-            if (!myState.get(Properties.RAIL_SHAPE).equals(otherState.get(Properties.RAIL_SHAPE))) {
-
-                return true;
-
-            }
-
-        }
-
-        return false;
-
-    }
-
-    public static boolean inIntersection(Entity entity, Vec3d movementDir, BlockState state) {
-
-        Vec3i newMovementDir = normalizeVec3i(vec3dToVec3i(movementDir));
-
-        BlockPos entityBlockPos = entity.getBlockPos();
-        World entityWorld = entity.getEntityWorld();
-
-        if (onFlatRail(state)) {
-
-            BlockState front = entityWorld.getBlockState(entityBlockPos.add(newMovementDir));
-            BlockState back = entityWorld.getBlockState(entityBlockPos.subtract(newMovementDir));
-            BlockState left = entityWorld.getBlockState(entityBlockPos.add(newMovementDir.getZ(), 0, -newMovementDir.getX()));
-            BlockState right = entityWorld.getBlockState(entityBlockPos.add(-newMovementDir.getZ(), 0, newMovementDir.getX()));
-
-            if (onPerpendicularRail(state, left)
-                    && onPerpendicularRail(state, right)
-            ) {
-                return true;
-            } else if ((onPerpendicularRail(state, left) &&
-                    (onParallelRail(state, front) || onParallelRail(state, back))) ||
-                    (onPerpendicularRail(state, right) &&
-                    (onParallelRail(state, front) || onParallelRail(state, back)))) {
-                return true;
-            } else if (
-                    (onParallelRail(state, left)
-                    && (onPerpendicularRail(state, front) || onPerpendicularRail(state, back)))
-                    || (onParallelRail(state, right)
-                    && (onPerpendicularRail(state, front) || onPerpendicularRail(state, back)))
-            ) {
-                return true;
-            }
-
-        }
-
-        return false;
-
-    }
-
-    public static Vec3i vec3dToVec3i(Vec3d vec3i) {
-        return new Vec3i(vec3i.getX(), vec3i.getY(), vec3i.getZ());
-    }
-
-    public static Vec3i normalizeVec3i(Vec3i vector) {
-        double tempVector = Math.sqrt(
-                vector.getX() * vector.getX()
-                        + vector.getY() * vector.getY()
-                        + vector.getZ() * vector.getZ()
-        );
-
-        return tempVector < 1.0E-4 ? new Vec3i(0, 0, 0) : new Vec3i(
-                vector.getX() / tempVector, vector.getY() / tempVector, vector.getZ() / tempVector
-        );
+        return slowEm;
     }
 
 }

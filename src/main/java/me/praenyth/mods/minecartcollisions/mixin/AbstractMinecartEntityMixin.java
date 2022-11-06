@@ -21,8 +21,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AbstractMinecartEntity.class)
 public abstract class AbstractMinecartEntityMixin extends Entity {
 
-    private static boolean useDefaultSpeed = false;
-
     @Shadow public abstract Direction getMovementDirection();
 
     @Shadow protected abstract double getMaxSpeed();
@@ -34,89 +32,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     @Inject(method = "tick", at = @At("HEAD"))
     public void minecartcollisions$tick(CallbackInfo ci) {
 
-        // slow down minecart when reaching upwards rail or sideways rail
-        BlockPos cartPos = getBlockPos();
         Vec3d cartVelo = getVelocity();
-
-        Vec3i cartDir = getMovementDirection().getVector();
-        BlockState cartRail = getBlockStateAtPos();
-        World cartWorld = getWorld();
-
-        BlockPos locInFront;
-        for (int i = 0; i < 3; i++) {
-
-            locInFront = cartPos.add(cartDir.multiply(i));
-            Block frontRail = MinecartUtils.checkRailInFront(cartWorld, locInFront);
-
-            BlockState frontBlockState = cartWorld.getBlockState(locInFront);
-
-            if (frontRail != null) {
-
-                try {
-                    if (frontRail.equals(Blocks.RAIL)) {
-
-                        switch (frontBlockState.get(Properties.RAIL_SHAPE)) {
-                            case ASCENDING_SOUTH:
-                            case ASCENDING_NORTH:
-                            case ASCENDING_EAST:
-                            case ASCENDING_WEST:
-                            case NORTH_EAST:
-                            case NORTH_WEST:
-                            case SOUTH_EAST:
-                            case SOUTH_WEST:
-                                if (getVelocity().getY() > 0 && MinecartUtils.onSlopedRail(cartRail)) {
-
-                                    useDefaultSpeed = false;
-                                    return;
-
-                                } else {
-
-                                    useDefaultSpeed = true;
-                                    return;
-
-                                }
-                            default:
-                                if ((cartVelo.length() > (this.isTouchingWater() ? 4.0 : 8.0) / 20.0) && MinecartUtils.inIntersection(this, cartVelo, frontBlockState)) {
-
-                                    useDefaultSpeed = true;
-                                    return;
-
-                                }
-                        }
-
-                    } else if (frontRail.equals(Blocks.POWERED_RAIL)) {
-                        switch (frontBlockState.get(Properties.STRAIGHT_RAIL_SHAPE)) {
-                            case ASCENDING_SOUTH:
-                            case ASCENDING_NORTH:
-                            case ASCENDING_EAST:
-                            case ASCENDING_WEST:
-                                if (getVelocity().getY() > 0 && MinecartUtils.onSlopedRail(cartRail)) {
-
-                                    useDefaultSpeed = false;
-                                    return;
-
-                                } else {
-
-                                    useDefaultSpeed = true;
-                                    return;
-
-                                }
-                            default:
-                                if ((cartVelo.length() > (this.isTouchingWater() ? 4.0 : 8.0) / 20.0) && MinecartUtils.inIntersection(this, cartVelo, frontBlockState)) {
-
-                                    useDefaultSpeed = true;
-                                    return;
-
-                                }
-                        }
-                    }
-                } catch (IllegalArgumentException ignored) {
-
-                }
-
-            }
-
-        }
 
         // damage mechanic
         if (cartVelo.length() > 1) {
@@ -139,9 +55,13 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
     @Inject(at = @At("RETURN"), method = "getMaxSpeed", cancellable = true)
     public void minecartcollisions$overrideMaxSpeed(CallbackInfoReturnable<Double> cir) {
+
+        boolean useDefaultSpeed = MinecartUtils.shouldSlowDown((AbstractMinecartEntity) getWorld().getEntityById(getId()), getWorld());
+
         if (!useDefaultSpeed) {
             cir.setReturnValue(cir.getReturnValue() * 20);
         }
+
     }
 
     @Inject(method = "getVelocityMultiplier", at = @At("RETURN"), cancellable = true)
