@@ -3,11 +3,13 @@ package me.praenyth.mods.minecartcollisions.mixin;
 import me.praenyth.mods.minecartcollisions.MinecartCollisions;
 import me.praenyth.mods.minecartcollisions.MinecartUtils;
 import me.praenyth.mods.minecartcollisions.damagesource.MinecartDamageSource;
-import net.minecraft.block.*;
+import me.praenyth.mods.minecartcollisions.gamerule.MinecartGamerules;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.state.property.Properties;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
@@ -22,8 +24,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class AbstractMinecartEntityMixin extends Entity {
 
     @Shadow public abstract Direction getMovementDirection();
-
-    @Shadow protected abstract double getMaxSpeed();
 
     public AbstractMinecartEntityMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -40,11 +40,31 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
                     getPos().add(1.5, 1.5, 1.5), getPos().add(-1.5, -1, -1.5)
             ))) {
                 try {
-                    if (getFirstPassenger() != null) {
-                        entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), 6f);
-                    } else {
-                        entity.damage(MinecartDamageSource.minecartNoPassenger(), 6f);
+
+                    float damage = world.getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
+
+                    if (entity.getVehicle() != this) {
+                        if (!entity.getType().getTranslationKey().contains("minecart")) {
+                            if (getFirstPassenger() != null) {
+                                entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), damage);
+                            } else {
+                                entity.damage(MinecartDamageSource.minecartNoPassenger(), damage);
+                            }
+                        }
                     }
+
+                    entity.getWorld().playSound(
+                            getX(), getY(), getZ(),
+                            new SoundEvent(new Identifier(
+                                    "minecartcrashes", MinecartCollisions.config.sound
+                            )),
+                            SoundCategory.NEUTRAL,
+                            1f,
+                            1f,
+                            true
+                    );
+                    entity.setVelocity(getVelocity().add(0, 0.5, 0));
+
                 } catch (CrashException ignored) {
 
                 }
@@ -59,7 +79,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         boolean useDefaultSpeed = MinecartUtils.shouldSlowDown((AbstractMinecartEntity) getWorld().getEntityById(getId()), getWorld());
 
         if (!useDefaultSpeed) {
-            cir.setReturnValue(cir.getReturnValue() * 20);
+            cir.setReturnValue(cir.getReturnValue() * world.getGameRules().getInt(MinecartGamerules.MAX_SPEED_MULTIPLIER));
         }
 
     }
