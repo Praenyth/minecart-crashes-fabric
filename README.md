@@ -11,4 +11,4 @@ Introducing the minecart collisions server-side mod! Perfect for your nefarious 
 This mod is very scuffed, expect for the most anticlimatic moments.
 
 
-<img src="https://i.imgur.com/Ol1Tcf8.png" alt="Requires Fabric API!!!" width="200"/>
+<a href="https://www.curseforge.com/minecraft/mc-mods/fabric-api/files"><img src="https://i.imgur.com/Ol1Tcf8.png" alt="Requires Fabric API!!!" width="200"/></a>
