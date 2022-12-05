@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "minecartcollisions",
+  "id": "minecartcrashes",
   "version": "${version}",
 
-  "name": "Minecart Collisions",
+  "name": "Minecart Crashes",
   "description": "My Spigot plugin ported to fabric",
   "authors": [
     "Praenyth"
@@ -14,17 +14,17 @@
   },
 
   "license": "MIT",
-  "icon": "assets/minecartcollisions/icon.png",
+  "icon": "assets/minecartcrashes/icon.png",
 
   "environment": "server",
   "entrypoints": {
     "main": [
-      "me.praenyth.mods.minecartcollisions.MinecartCollisions"
+      "me.praenyth.mods.minecartcrashes.MinecartCrashes"
     ]
   },
   "accessWidener": "minecartcrashes.accesswidener",
   "mixins": [
-    "MinecartCollisions.mixins.json"
+    "MinecartCrashes.mixins.json"
   ],
 
   "depends": {

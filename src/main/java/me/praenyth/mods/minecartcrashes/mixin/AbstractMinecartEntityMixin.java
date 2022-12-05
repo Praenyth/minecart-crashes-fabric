@@ -1,15 +1,12 @@
-package me.praenyth.mods.minecartcollisions.mixin;
+package me.praenyth.mods.minecartcrashes.mixin;
 
-import me.praenyth.mods.minecartcollisions.MinecartCollisions;
-import me.praenyth.mods.minecartcollisions.MinecartUtils;
-import me.praenyth.mods.minecartcollisions.damagesource.MinecartDamageSource;
-import me.praenyth.mods.minecartcollisions.gamerule.MinecartGamerules;
+import me.praenyth.mods.minecartcrashes.MinecartCrashes;
+import me.praenyth.mods.minecartcrashes.MinecartUtils;
+import me.praenyth.mods.minecartcrashes.damagesource.MinecartDamageSource;
+import me.praenyth.mods.minecartcrashes.gamerule.MinecartGamerules;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
@@ -30,7 +27,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
-    public void minecartcollisions$tick(CallbackInfo ci) {
+    public void minecartcrashes$tick(CallbackInfo ci) {
 
         Vec3d cartVelo = getVelocity();
 
@@ -52,7 +49,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     }
 
     @Inject(at = @At("HEAD"), method = "collidesWith")
-    public void minecartcollisions$overrideCollisions(Entity other, CallbackInfoReturnable<Boolean> cir) {
+    public void minecartcrashes$overrideCollisions(Entity other, CallbackInfoReturnable<Boolean> cir) {
         Vec3d cartVelo = getVelocity();
 
         // damage mechanic
@@ -86,7 +83,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     }
 
     @Inject(at = @At("RETURN"), method = "getMaxSpeed", cancellable = true)
-    public void minecartcollisions$overrideMaxSpeed(CallbackInfoReturnable<Double> cir) {
+    public void minecartcrashes$overrideMaxSpeed(CallbackInfoReturnable<Double> cir) {
 
         boolean useDefaultSpeed = MinecartUtils.shouldSlowDown((AbstractMinecartEntity) getWorld().getEntityById(getId()), getWorld());
 
@@ -97,7 +94,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     }
 
     @Inject(method = "getVelocityMultiplier", at = @At("RETURN"), cancellable = true)
-    private void minecartcollisions$getVelocityMultiplier(CallbackInfoReturnable<Float> cir) {
+    private void minecartcrashes$getVelocityMultiplier(CallbackInfoReturnable<Float> cir) {
 
         Vec3d velocityVec = this.getVelocity();
         double velocity = Math.sqrt(Math.pow(velocityVec.x, 2) + Math.pow(velocityVec.y, 2) + Math.pow(velocityVec.z, 2));
@@ -106,8 +103,8 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
             float friction = 1 - cir.getReturnValue();
 
-            float velocityMultiplier = MinecartCollisions.velocityMultiplier(velocity);
-            float velocitySubtractor = MinecartCollisions.velocitySubtractor(velocity);
+            float velocityMultiplier = MinecartCrashes.velocityMultiplier(velocity);
+            float velocitySubtractor = MinecartCrashes.velocitySubtractor(velocity);
 
             float veloMul = 1 + (friction * velocityMultiplier) - velocitySubtractor;
 

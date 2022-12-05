@@ -1,4 +1,4 @@
-package me.praenyth.mods.minecartcollisions;
+package me.praenyth.mods.minecartcrashes;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.AbstractRailBlock;

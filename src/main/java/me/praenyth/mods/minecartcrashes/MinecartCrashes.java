@@ -1,16 +1,15 @@
-package me.praenyth.mods.minecartcollisions;
+package me.praenyth.mods.minecartcrashes;
 
-import me.praenyth.mods.minecartcollisions.config.ConfigFile;
-import me.praenyth.mods.minecartcollisions.gamerule.MinecartGamerules;
+import me.praenyth.mods.minecartcrashes.config.ConfigFile;
+import me.praenyth.mods.minecartcrashes.gamerule.MinecartGamerules;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.io.IOException;
 
-public class MinecartCollisions implements ModInitializer {
+public class MinecartCrashes implements ModInitializer {
 
     public static final Logger LOGGER = LoggerFactory.getLogger("Minecart Collisions");
 

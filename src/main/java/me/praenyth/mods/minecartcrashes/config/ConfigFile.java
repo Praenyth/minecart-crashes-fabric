@@ -1,4 +1,4 @@
-package me.praenyth.mods.minecartcollisions.config;
+package me.praenyth.mods.minecartcrashes.config;
 
 import com.google.gson.*;
 

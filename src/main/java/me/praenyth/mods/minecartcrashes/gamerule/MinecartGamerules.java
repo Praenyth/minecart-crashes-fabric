@@ -1,6 +1,6 @@
-package me.praenyth.mods.minecartcollisions.gamerule;
+package me.praenyth.mods.minecartcrashes.gamerule;
 
-import me.praenyth.mods.minecartcollisions.MinecartCollisions;
+import me.praenyth.mods.minecartcrashes.MinecartCrashes;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
 import net.minecraft.world.GameRules;
@@ -14,7 +14,7 @@ public class MinecartGamerules {
             GameRuleRegistry.register("maxSpeedMultiplier", GameRules.Category.MISC, GameRuleFactory.createIntRule(20));
 
     public static void registerGamerules() {
-        MinecartCollisions.LOGGER.info("Registering the gamerules!!!");
+        MinecartCrashes.LOGGER.info("Registering the gamerules!!!");
     }
 
 }

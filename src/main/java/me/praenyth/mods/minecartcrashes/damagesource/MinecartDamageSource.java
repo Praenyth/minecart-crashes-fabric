@@ -1,4 +1,4 @@
-package me.praenyth.mods.minecartcollisions.damagesource;
+package me.praenyth.mods.minecartcrashes.damagesource;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
