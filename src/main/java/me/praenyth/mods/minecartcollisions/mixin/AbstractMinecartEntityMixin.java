@@ -35,42 +35,54 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         Vec3d cartVelo = getVelocity();
 
         // damage mechanic
-        if (cartVelo.length() > 1) {
+        if (cartVelo.horizontalLength() > 2) {
             for (Entity entity : this.getWorld().getOtherEntities(this, new Box(
                     getPos().add(1.5, 1.5, 1.5), getPos().add(-1.5, -1, -1.5)
             ))) {
                 try {
 
-                    float damage = world.getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
-
-                    if (entity.getVehicle() != this) {
-                        if (!entity.getType().getTranslationKey().contains("minecart")) {
-                            if (getFirstPassenger() != null) {
-                                entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), damage);
-                            } else {
-                                entity.damage(MinecartDamageSource.minecartNoPassenger(), damage);
-                            }
-                        }
+                    if (!entity.getType().equals(EntityType.ITEM)) {
+                        minecartcrashes$damage(entity);
                     }
 
-                    entity.getWorld().playSound(
-                            getX(), getY(), getZ(),
-                            new SoundEvent(new Identifier(
-                                    "minecartcrashes", MinecartCollisions.config.sound
-                            )),
-                            SoundCategory.NEUTRAL,
-                            1f,
-                            1f,
-                            true
-                    );
-                    entity.setVelocity(getVelocity().add(0, 0.5, 0));
-
-                } catch (CrashException ignored) {
-
-                }
+                } catch (CrashException ignored) {}
             }
         }
 
+    }
+
+    @Inject(at = @At("HEAD"), method = "collidesWith")
+    public void minecartcollisions$overrideCollisions(Entity other, CallbackInfoReturnable<Boolean> cir) {
+        Vec3d cartVelo = getVelocity();
+
+        // damage mechanic
+        if (cartVelo.horizontalLength() > 2) {
+            try {
+
+                if (!other.getType().equals(EntityType.ITEM)) {
+                    minecartcrashes$damage(other);
+                }
+
+            } catch (CrashException ignored) {}
+        }
+    }
+
+    private void minecartcrashes$damage(Entity entity) {
+        if (!(entity.getType().equals(EntityType.ITEM) || MinecartUtils.checkIfMinecart(entity))) {
+
+            float damage = world.getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
+
+            if (entity.getVehicle() != this) {
+                if (getFirstPassenger() != null) {
+                    entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), damage);
+                } else {
+                    entity.damage(MinecartDamageSource.minecartNoPassenger(), damage);
+                }
+            }
+
+            entity.setVelocity(getVelocity().add(0, 0.5, 0));
+
+        }
     }
 
     @Inject(at = @At("RETURN"), method = "getMaxSpeed", cancellable = true)

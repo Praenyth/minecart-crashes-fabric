@@ -4,6 +4,8 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.RailShape;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.math.*;
@@ -14,7 +16,13 @@ import java.util.List;
 
 public class MinecartUtils {
 
-    // From Cammie's Minecart Tweaks
+    /**
+     *
+     * @author CammiePone
+     * @param minecart
+     * @param world
+     * @return A boolean value for whether the minecart should slow down
+     */
     public static boolean shouldSlowDown(AbstractMinecartEntity minecart, World world) {
         boolean slowEm = false;
 
@@ -74,6 +82,28 @@ public class MinecartUtils {
         }
 
         return slowEm;
+    }
+
+    /**
+     * Checks if the entity is a minecart
+     * (please let me know if there was an easier way of doing this)
+     * @param entity
+     * @return boolean for whether the entity is a minecart
+     */
+    public static boolean checkIfMinecart(Entity entity) {
+        if (
+                entity.getType().equals(EntityType.MINECART)
+                || entity.getType().equals(EntityType.CHEST_MINECART)
+                || entity.getType().equals(EntityType.TNT_MINECART)
+                || entity.getType().equals(EntityType.HOPPER_MINECART)
+                || entity.getType().equals(EntityType.SPAWNER_MINECART)
+                || entity.getType().equals(EntityType.COMMAND_BLOCK_MINECART)
+                || entity.getType().equals(EntityType.FURNACE_MINECART)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

@@ -13,7 +13,7 @@ public class ConfigFile {
             .disableHtmlEscaping()
             .create();
 
-    public String sound = "prae.danielsmp.minecart";
+    public String sound = "this doesn't do anything currently, come back later when i figure this out";
 
     public static ConfigFile loadConfigFile(File file) {
         ConfigFile config = null;
