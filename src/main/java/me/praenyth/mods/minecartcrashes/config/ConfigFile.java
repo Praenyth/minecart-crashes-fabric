@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 public class ConfigFile {
 
+    // TODO: Make an actual config file
     private static final Gson gson = new GsonBuilder()
             .setPrettyPrinting()
             .serializeNulls()

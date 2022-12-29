@@ -6,6 +6,7 @@ import me.praenyth.mods.minecartcrashes.damagesource.MinecartDamageSource;
 import me.praenyth.mods.minecartcrashes.gamerule.MinecartGamerules;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.util.crash.CrashException;
 import net.minecraft.util.math.*;
@@ -31,6 +32,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
         Vec3d cartVelo = getVelocity();
 
+
         // damage mechanic
         if (cartVelo.horizontalLength() > 2) {
             for (Entity entity : this.getWorld().getOtherEntities(this, new Box(
@@ -48,8 +50,13 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
     }
 
-    @Inject(at = @At("HEAD"), method = "collidesWith")
+    @Inject(at = @At("HEAD"), method = "collidesWith", cancellable = true)
     public void minecartcrashes$overrideCollisions(Entity other, CallbackInfoReturnable<Boolean> cir) {
+
+        if (other.getType().getTranslationKey().contains("minecart")) {
+            cir.setReturnValue(false);
+        }
+
         Vec3d cartVelo = getVelocity();
 
         // damage mechanic
@@ -65,11 +72,10 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     }
 
     private void minecartcrashes$damage(Entity entity) {
-        if (!(entity.getType().equals(EntityType.ITEM) || MinecartUtils.checkIfMinecart(entity))) {
-
+        if (entity instanceof LivingEntity entity1) {
             float damage = world.getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
 
-            if (entity.getVehicle() != this) {
+            if (entity1.getVehicle() != this) {
                 if (getFirstPassenger() != null) {
                     entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), damage);
                 } else {
@@ -77,8 +83,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
                 }
             }
 
-            entity.setVelocity(getVelocity().add(0, 0.5, 0));
-
+            entity1.setVelocity(getVelocity().add(0, 0.5, 0));
         }
     }
 
