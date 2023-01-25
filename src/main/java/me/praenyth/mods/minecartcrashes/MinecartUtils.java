@@ -4,8 +4,6 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.AbstractRailBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.enums.RailShape;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.tag.BlockTags;
 import net.minecraft.util.math.*;
