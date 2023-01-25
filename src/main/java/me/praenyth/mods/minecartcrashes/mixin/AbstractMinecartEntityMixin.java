@@ -30,6 +30,8 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     @Inject(method = "tick", at = @At("HEAD"))
     public void minecartcrashes$tick(CallbackInfo ci) {
 
+
+
         Vec3d cartVelo = getVelocity();
 
 
@@ -39,6 +41,10 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
                     getPos().add(1.5, 1.5, 1.5), getPos().add(-1.5, -1, -1.5)
             ))) {
                 try {
+
+                    if (entity.getType().getTranslationKey().contains("minecart")) {
+                        return;
+                    }
 
                     if (!entity.getType().equals(EntityType.ITEM)) {
                         minecartcrashes$damage(entity);
@@ -55,6 +61,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
         if (other.getType().getTranslationKey().contains("minecart")) {
             cir.setReturnValue(false);
+            return;
         }
 
         Vec3d cartVelo = getVelocity();
@@ -73,17 +80,19 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
 
     private void minecartcrashes$damage(Entity entity) {
         if (entity instanceof LivingEntity entity1) {
-            float damage = world.getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
+            if (entity1.isAlive()) {
+                float damage = world.getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
 
-            if (entity1.getVehicle() != this) {
-                if (getFirstPassenger() != null) {
-                    entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), damage);
-                } else {
-                    entity.damage(MinecartDamageSource.minecartNoPassenger(), damage);
+                if (entity1.getVehicle() != this) {
+                    if (getFirstPassenger() != null) {
+                        entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), damage);
+                    } else {
+                        entity.damage(MinecartDamageSource.minecartNoPassenger(), damage);
+                    }
                 }
-            }
 
-            entity1.setVelocity(getVelocity().add(0, 0.5, 0));
+                entity1.setVelocity(getVelocity().add(0, 0.5, 0).multiply(0.8, 1, 0.8));
+            }
         }
     }
 
