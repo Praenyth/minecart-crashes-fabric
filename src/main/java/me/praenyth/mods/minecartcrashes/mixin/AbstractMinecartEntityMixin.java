@@ -81,13 +81,13 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
     private void minecartcrashes$damage(Entity entity) {
         if (entity instanceof LivingEntity entity1) {
             if (entity1.isAlive()) {
-                float damage = world.getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
+                float damage = getWorld().getGameRules().getInt(MinecartGamerules.MINECART_DAMAGE);
 
                 if (entity1.getVehicle() != this) {
                     if (getFirstPassenger() != null) {
-                        entity.damage(MinecartDamageSource.minecartWithPassenger(getFirstPassenger()), damage);
+                        entity.damage(MinecartDamageSource.minecartPassengerDamageSource(getFirstPassenger()), damage);
                     } else {
-                        entity.damage(MinecartDamageSource.minecartNoPassenger(), damage);
+                        entity.damage(MinecartDamageSource.minecartDamageSource(), damage);
                     }
                 }
 
@@ -102,7 +102,7 @@ public abstract class AbstractMinecartEntityMixin extends Entity {
         boolean useDefaultSpeed = MinecartUtils.shouldSlowDown((AbstractMinecartEntity) getWorld().getEntityById(getId()), getWorld());
 
         if (!useDefaultSpeed) {
-            cir.setReturnValue(cir.getReturnValue() * world.getGameRules().getInt(MinecartGamerules.MAX_SPEED_MULTIPLIER));
+            cir.setReturnValue(cir.getReturnValue() * getWorld().getGameRules().getInt(MinecartGamerules.MAX_SPEED_MULTIPLIER));
         }
 
     }

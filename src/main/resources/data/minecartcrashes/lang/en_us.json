@@ -1,4 +1,4 @@
 {
-  "death.attack.minecart": "%1$s was ran over by a minecart",
-  "death.attack.minecart.passenger": "%1$s was ran over by a minecart from %2$s"
+  "death.attack.minecart_no_passenger": "%1$s was ran over by a minecart",
+  "death.attack.minecart_passenger": "%1$s was ran over by a minecart from %2$s"
 }

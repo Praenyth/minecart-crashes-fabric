@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "Minecart Crashes",
-  "description": "My Spigot plugin ported to fabric",
+  "description": "Hit your buddies and pals with a nice little minecart!",
   "authors": [
     "Praenyth"
   ],
@@ -30,7 +30,7 @@
   "depends": {
     "fabricloader": ">=0.14.9",
     "fabric-api": "*",
-    "minecraft": "~1.19",
+    "minecraft": ">=1.20",
     "java": ">=17"
   }
 }

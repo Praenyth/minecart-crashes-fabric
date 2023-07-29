@@ -11,7 +11,7 @@ public class MinecartGamerules {
             GameRuleRegistry.register("minecartDamage", GameRules.Category.MISC, GameRuleFactory.createIntRule(12));
 
     public static final GameRules.Key<GameRules.IntRule> MAX_SPEED_MULTIPLIER =
-            GameRuleRegistry.register("maxSpeedMultiplier", GameRules.Category.MISC, GameRuleFactory.createIntRule(20));
+            GameRuleRegistry.register("minecartMaxSpeedMultiplier", GameRules.Category.MISC, GameRuleFactory.createIntRule(20));
 
     public static void registerGamerules() {
         MinecartCrashes.LOGGER.info("Registering the gamerules!!!");
