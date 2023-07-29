@@ -1,5 +1,3 @@
-# ARCHIVING BECAUSE I WANT TO MOVE ON!!!
-
 # Minecart Collisions (Fabric)
 
 ### Have you ever wanted to beat the everloving hell out of someone?
