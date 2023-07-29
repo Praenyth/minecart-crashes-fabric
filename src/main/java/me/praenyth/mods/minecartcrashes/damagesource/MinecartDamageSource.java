@@ -11,9 +11,6 @@ public class MinecartDamageSource {
 
     public static final RegistryEntry<DamageType> MINECART_PASSENGER = RegistryEntry.of(new DamageType("minecart_passenger", 0.1f));
 
-    //public static final RegistryKey<DamageType> MINECART_DAMAGE_SOURCE =
-    //        RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier("minecartcrashes", "minecart"));
-
     public static DamageSource minecartDamageSource() {
         return new DamageSource(MINECART_NO_PASSENGER);
     }
