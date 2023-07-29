@@ -1,4 +1,4 @@
-# Minecart Collisions (Fabric)
+# Minecart Crashes (Fabric)
 
 ### Have you ever wanted to beat the everloving hell out of someone?
 
